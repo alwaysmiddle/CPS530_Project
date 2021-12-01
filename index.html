@@ -28,12 +28,13 @@
 
     #map {
       height: 180px;
-      
+
     }
   </style>
 </head>
 
 <body>
+  <!--Title-->
   <div class="container">
     <div class="jumbotron">
       <h1>Welcome to My CCPS530 Project</h1>
@@ -41,16 +42,50 @@
     </div>
   </div>
 
+  <!--IP form-->
   <div class="d-flex justify-content-center">
+    <form class="needs-validation" novalidate id="ipForm" action="/", method="post">
+        <div class="form-group">
+          <label for="ipAddressInput">IP address location:</label>
+          <input type="text" class="form-control" id="ipAddressInput" name="ipAddressInput" placeholder="0.0.0.0">
+        </div>
+      <button class="btn btn-primary" type="submit">Submit form</button>
+    </form>
+  </div>
+
+  <!--LeafLet Map-->
+  <div class="d-flex justify-content-center" style="margin: 50px 0px 0px 0px">
     <div id="map" style="width: 600px; height: 400px;"></div>
   </div>
-  
+
 
   <!--TODO add ip submission form with regex validation-->
   <!--Script Section-->
   <script>
-    var map = L.map('map').setView([51.505, -0.09], 13);
+    var testJson = {
+      "ip_address": "76.68.52.228",
+      "country": "Canada",
+      "country_code": "CA",
+      "continent": "North America",
+      "continent_code": "NA",
+      "city": "Scarborough",
+      "county": null,
+      "region": "Ontario",
+      "region_code": "08",
+      "postal_code": "M1R",
+      "timezone": "America\/Toronto",
+      "owner": null,
+      "longitude": -79.3003,
+      "latitude": 43.7507,
+      "currency": "CAD",
+      "languages": [
+        "en-CA",
+        "fr-CA",
+        "iu"
+      ]
+    }
 
+    var map = L.map('map').setView([testJson.latitude, testJson.longitude], 13);
     var tiles = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
       maxZoom: 18,
       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
@@ -59,6 +94,40 @@
       tileSize: 512,
       zoomOffset: -1
     }).addTo(map);
+
+    //testJson.latitude,testJson.longitude
+    L.marker([testJson.latitude, testJson.longitude]).addTo(map).bindPopup('IP: ' + testJson.ip_address + '<br>From Country: ' + testJson.country).openPopup();
+
+    //.on('mouseover',onClick);
+
+    function onClick(e) {
+      alert(this.getLatLng());
+    }
+
+    //Form submission
+    $("#ipForm").submit(function(e) {
+      e.preventDefault();
+      alert("hahaha");
+    });
+
+    //Form validation : Example starter JavaScript for disabling form submissions if there are invalid fields
+    // (function () {
+    //   'use strict';
+    //   window.addEventListener('load', function () {
+    //     // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    //     var forms = document.getElementsByClassName('needs-validation');
+    //     // Loop over them and prevent submission
+    //     var validation = Array.prototype.filter.call(forms, function (form) {
+    //       form.addEventListener('submit', function (event) {
+    //         if (form.checkValidity() === false) {
+    //           event.preventDefault();
+    //           event.stopPropagation();
+    //         }
+    //         form.classList.add('was-validated');
+    //       }, false);
+    //     });
+    //   }, false);
+    // })();
   </script>
 
 </body>
