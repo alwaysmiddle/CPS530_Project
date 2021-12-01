@@ -11,28 +11,29 @@ app.use(express.urlencoded({     // to support URL-encoded bodies
   extended: false
 })); 
 
-var testJson = {
-    "ip_address": "76.68.52.228",
-    "country": "Canada",
-    "country_code": "CA",
-    "continent": "North America",
-    "continent_code": "NA",
-    "city": "Scarborough",
-    "county": null,
-    "region": "Ontario",
-    "region_code": "08",
-    "postal_code": "M1R",
-    "timezone": "America\/Toronto",
-    "owner": null,
-    "longitude": -79.3003,
-    "latitude": 43.7507,
-    "currency": "CAD",
-    "languages": [
-      "en-CA",
-      "fr-CA",
-      "iu"
-    ]
-  }
+// var testJson = {
+//     "ip_address": "76.68.52.228",
+//     "country": "Canada",
+//     "country_code": "CA",
+//     "continent": "North America",
+//     "continent_code": "NA",
+//     "city": "Scarborough",
+//     "county": null,
+//     "region": "Ontario",
+//     "region_code": "08",
+//     "postal_code": "M1R",
+//     "timezone": "America\/Toronto",
+//     "owner": null,
+//     "longitude": -79.3003,
+//     "latitude": 43.7507,
+//     "currency": "CAD",
+//     "languages": [
+//       "en-CA",
+//       "fr-CA",
+//       "iu"
+//     ]
+//   }
+// var errorJson = {"error":"Invalid IP Address: 141.117.125.76auth=82102e4b-bfbf-4b4b-8255-19ab9e7b1496"}
 
 
 // PORT
@@ -44,40 +45,46 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", (req, res) => {
-  console.log("Got body:", req.body.ipAddressInput);
+  formInput = req.body.ipAddressInput
 
-  urlstring =
-    "https://api.ipfind.com/?ip=" +
-    req.body.ipAddressInput +
-    "&auth=82102e4b-bfbf-4b4b-8255-19ab9e7b1496";
-  console.log(urlstring);
+  urlstring ="https://api.ipfind.com/?ip=" + formInput + "&auth=82102e4b-bfbf-4b4b-8255-19ab9e7b1496";
 
-  https
-    .get(urlstring, (res) => {
-      var body = "";
+  if (ValidateIPaddress(formInput)) {
+    https
+      .get(urlstring, (apiRes) => {
+        var body = "";
 
-      res.on("data", (chunk) => {
-        body += chunk;
+        apiRes.on("data", (chunk) => {
+          body += chunk;
+        });
+
+        apiRes.on("end", () => {
+          try {
+            var jsonReturned = JSON.parse(body);
+            res.send(jsonReturned);
+          } catch (error) {
+            console.error(error.message);
+          }
+        });
+      })
+      .on("error", (error) => {
+        console.error(error.message);
       });
-
-      res.on("end", () => {
-        try {
-          var json = JSON.parse(body);
-          console.log(JSON.stringify(json))
-          // do something with JSON
-        } catch (error) {
-          console.error(error.message);
-        }
-      });
-    })
-    .on("error", (error) => {
-      console.error(error.message);
-    });
-
-  res.sendFile(path.join(__dirname, "index.html"));
+  } else {
+    res.send(false);
+  }
 });
 
 app.listen(PORT, (req, res) => {
   console.log(`Server Started at PORT ${PORT}`);
 });
+
+function ValidateIPaddress(ipaddress) 
+{
+ if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress))
+  {
+    return (true)
+  }
+return (false)
+}
 
